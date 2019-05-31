@@ -31,16 +31,16 @@ def load_file(input_file, selection = None):
     :return: input_values, target_values, orig_weights, input_var_names
     """
 
-    input_values = []
+    Bkg_values = []
 
-    target_values = []
+    Bkg_target_values = []
 
     # names of variables used as BDT input
     input_var_names = []
 
     # original weights without pt/eta reweighting
     # we can use these also for evaluation
-    orig_weights = []
+    Bkg_orig_weights = []
 
 
     is_first_var = True
@@ -68,25 +68,25 @@ def load_file(input_file, selection = None):
 
             # append target values and weights
             if is_first_var:
-                target_values.append(np.ones(len(this_values[-1])) * label)
+                Bkg_target_values.append(np.ones(len(this_values[-1])) * label)
 
                 this_weights =  tree.array('weight')[indices]
-                orig_weights.append(this_weights)
+                Bkg_orig_weights.append(this_weights)
 
             is_first_proc = False
 
         # end of loop over processes
 
         if this_values:
-            input_values.append(np.hstack(this_values))
+            Bkg_values.append(np.hstack(this_values))
 
         if is_first_var:
-            target_values = np.hstack(target_values)
-            orig_weights = np.hstack(orig_weights)
+            Bkg_target_values = np.hstack(Bkg_target_values)
+            Bkg_orig_weights = np.hstack(Bkg_orig_weights)
 
         is_first_var = False
 
 
-    input_values = np.vstack(input_values).T
-    return input_values, target_values, orig_weights, input_var_names
+    Bkg_values = np.vstack(Bkg_values).T
+    return Bkg_values, Bkg_target_values, Bkg_orig_weights, input_var_names
         

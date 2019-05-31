@@ -6,7 +6,7 @@ from sklearn import metrics
 import xgboost as xgb
 from xgboost import XGBClassifier
 import matplotlib.pyplot as plt
-import utils_barrel_background
+import utils_barrel_bkg
 import xgboost2tmva
 import time,pickle
 from tqdm import tqdm
@@ -25,11 +25,11 @@ print fin['fakePhotons'].keys()
 geometry_selection = lambda tree: np.abs(tree.array('scEta')) < 1.5
 
 
-input_values, target_values, orig_weights, input_vars = utils_barrel_background.load_file(fin, geometry_selection)
+Bkg_values, Bkg_target_values, Bkg_orig_weights, input_vars = utils_barrel_bkg.load_file(fin, geometry_selection)
 
-print "input_values", input_values
-print "target_values", target_values
-print "orig_weights", orig_weights
+print "Bkg_values", Bkg_values
+print "Bkg_target_values", Bkg_target_values
+print "Bkg_orig_weights", Bkg_orig_weights
 print "input_vars", input_vars
 
 ####################################################################################################################
