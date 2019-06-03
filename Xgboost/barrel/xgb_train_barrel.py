@@ -127,107 +127,104 @@ print "AUC Score  (Test) : %f" % auc_val_test
 ## Evaluate XGBoost Models With Learning Curves
 
 # retrieve performance metrics
-#results = model.evals_result()
-#print(results)
-#epochs = len(results['validation_0']['auc'])
-#x_axis = range(0, epochs)
+results = model.evals_result()
+print(results)
+epochs = len(results['validation_0']['auc'])
+x_axis = range(0, epochs)
 
 # plot log loss
-#fig, ax = plt.subplots()
-#ax.plot(x_axis, results['validation_0']['logloss'], label='Train')
-#ax.plot(x_axis, results['validation_1']['logloss'], label='Test')
-#ax.legend()
-#plt.xlabel('n_estimators')
-#plt.ylabel('Log Loss')
-#plt.title('XGBoost : Log Loss')
-#plt.legend(loc = 'upper right', fontsize = 20)
-#plt.grid()
-#plt.savefig("Learning_curve_Logloss_15032019_nTree2000.png")
+fig, ax = plt.subplots()
+ax.plot(x_axis, results['validation_0']['logloss'], label='Train')
+ax.plot(x_axis, results['validation_1']['logloss'], label='Test')
+ax.legend()
+plt.xlabel('n_estimators')
+plt.ylabel('Log Loss')
+plt.title('XGBoost : Log Loss')
+plt.legend(loc = 'upper right', fontsize = 20)
+plt.grid()
+plt.savefig("Learning_curve_Logloss_15032019_nTree2000.png")
 
 # plot classification error
-#fig, ax = plt.subplots()
-#ax.plot(x_axis, results['validation_0']['error'], label='Train')
-#ax.plot(x_axis, results['validation_1']['error'], label='Test')
-#ax.legend()
-#plt.xlabel('n_estimators')
-#plt.ylabel('AUC')
-#plt.title('XGBoost : AUC')
-#plt.legend(loc = 'upper right', fontsize = 20)
-#plt.grid()
-#plt.savefig("Learning_curve_AUC_16032019_nTree2000.png")
+fig, ax = plt.subplots()
+ax.plot(x_axis, results['validation_0']['error'], label='Train')
+ax.plot(x_axis, results['validation_1']['error'], label='Test')
+ax.legend()
+plt.xlabel('n_estimators')
+plt.ylabel('AUC')
+plt.title('XGBoost : AUC')
+plt.legend(loc = 'upper right', fontsize = 20)
+plt.grid()
+plt.savefig("Learning_curve_AUC_16032019_nTree2000.png")
 
 
 ############################################################################################################
 
 ## make predictions  on the test data set
-#y_test_pred = model.predict_proba(X_test)[:,1]
+y_test_pred = model.predict_proba(X_test)[:,1]
 
 # plotting ROC curves
-#fpr, tpr, thresholds = metrics.roc_curve(y_test,y_test_pred,sample_weight=w_test)
-#auc_val = metrics.auc(fpr, tpr, reorder = True)
+fpr, tpr, thresholds = metrics.roc_curve(y_test,y_test_pred,sample_weight=w_test)
+auc_val = metrics.auc(fpr, tpr, reorder = True)
  
 
-#plt.figure(figsize=(10,10))
+plt.figure(figsize=(10,10))
 
-#plt.plot(fpr, tpr, label = 'xgboost (auc=%.3f)' % auc_val)
+plt.plot(fpr, tpr, label = 'xgboost (auc=%.3f)' % auc_val)
 
-#plt.xlabel('false positive rate (relative background efficiency)', fontsize = 15)
-#plt.ylabel('true positive rate (relative signal efficiency)', fontsize = 15)
-#plt.legend(loc = 'lower right', fontsize = 20)
-#plt.grid()
-#plt.savefig("ROC_curve_Test_barrel_15032019_nTree459_cl.png")
+plt.xlabel('false positive rate (relative background efficiency)', fontsize = 15)
+plt.ylabel('true positive rate (relative signal efficiency)', fontsize = 15)
+plt.legend(loc = 'lower right', fontsize = 20)
+plt.grid()
+plt.savefig("ROC_curve_Test_barrel_15032019_nTree459_cl.png")
 
 ######################################################################################################################
 # **Re-check pt/eta weighting**
 
-#for train_test_label, weights, y, pt, scEta in (('train', w_train, y_train, pt_train, scEta_train), ('test', w_test, y_test, pt_test, scEta_test)):
-#    plt.figure(figsize = (13,6))
-#    plot_index = 1
-#    for values, binning in ((pt, np.linspace(0, 250, 50 + 1)), (np.abs(scEta), np.linspace(0, 2.5, 25 + 1))):
-#        plt.subplot(1,2, plot_index)
-#        plot_index += 1
+for train_test_label, weights, y, pt, scEta in (('train', w_train, y_train, pt_train, scEta_train), ('test', w_test, y_test, pt_test, scEta_test)):
+    plt.figure(figsize = (13,6))
+    plot_index = 1
+    for values, binning in ((pt, np.linspace(0, 250, 50 + 1)), (np.abs(scEta), np.linspace(0, 2.5, 25 + 1))):
+        plt.subplot(1,2, plot_index)
+        plot_index += 1
 
-#        for label, selection in (('prompt', lambda labels: labels == 1), ('fake', lambda labels: labels == 0)):
-#            indices = selection(y)
-#            plt.hist(values[indices], bins = binning, weights = weights[indices], label = label, histtype = 'step', alpha = 0.5,
-#                     linewidth = 4, normed = True)
-#        plt.grid()
-#        plt.legend(loc = 'lower right')
-#        if train_test_label == 'train':  
-#           plt.title(train_test_label)
+        for label, selection in (('prompt', lambda labels: labels == 1), ('fake', lambda labels: labels == 0)):
+            indices = selection(y)
+            plt.hist(values[indices], bins = binning, weights = weights[indices], label = label, histtype = 'step', alpha = 0.5,
+                     linewidth = 4, normed = True)
+        plt.grid()
+        plt.legend(loc = 'lower right')
+        if train_test_label == 'train':  
+           plt.title(train_test_label)
            #plt.show()
-#           plt.savefig("pt_scEta_reweight_check_train_barrel_14032019_nTree459.png")
-#        else:
-#             plt.title(train_test_label)
+           plt.savefig("pt_scEta_reweight_check_train_barrel_14032019_nTree459.png")
+        else:
+             plt.title(train_test_label)
              #plt.show()
-#             plt.savefig("pt_scEta_reweight_check_test_barrel_14032019_nTree459.png")
+             plt.savefig("pt_scEta_reweight_check_test_barrel_14032019_nTree459.png")
              
 ###################################################################################################################################        
-#def variable_importance(classifier, features):
-#    print "mylist", features[:]
-#    indices      = np.argsort(classifier.feature_importances_)[::-1]
-#    importances   = classifier.feature_importances_
+def variable_importance(classifier, features):
+    print "mylist", features[:]
+    indices      = np.argsort(classifier.feature_importances_)[::-1]
+    importances   = classifier.feature_importances_
 
-#    for f in range(len(features)):
-#        print("%d. feature %s %d (%f)" % (f + 1, features[indices[f]], indices[f], importances[indices[f]]))
+    for f in range(len(features)):
+        print("%d. feature %s %d (%f)" % (f + 1, features[indices[f]], indices[f], importances[indices[f]]))
 
-    # Plot the feature importances of the forest                                                                                              
  
-#    plt.figure()
-#    plt.title("Feature importances")
-#    plt.bar(range(len(features)), importances[indices],
-#       color="r",  align="center")
-#    plt.xticks(range(len(features)), indices)
-#    plt.xlim([-1, len(features)])
-#    plt.savefig('vriable_importance_14032019_nTree2000.png')
+    plt.figure()
+    plt.title("Feature importances")
+    plt.bar(range(len(features)), importances[indices],
+       color="r",  align="center")
+    plt.xticks(range(len(features)), indices)
+    plt.xlim([-1, len(features)])
+    plt.savefig('vriable_importance_14032019_nTree2000.png')
 
-#variable_importance(model,input_vars)
+variable_importance(model,input_vars)
 
 
+########################################################################################################################################
 ## feature importances
-
-
-
 #plt.figure(figsize=(15, 15))
 #plt.title("Feature importances")
 #x = np.arange(12)
@@ -237,24 +234,27 @@ print "AUC Score  (Test) : %f" % auc_val_test
 #              'SCRawE', 'scEta'), rotation=90, fontsize=13, fontweight='bold')
 #plt.savefig('Variable_importance_names_14032019_MD.png')
 
+########################################################################################################################################
 
 
 
+
+###########################################################################################################################
 # convert xgboost fitted model to TMVA weights
 
-#import tempfile
-#feature_map = tempfile.NamedTemporaryFile(suffix=".txt")
-#for index, varname in enumerate(input_vars):
-#    print >> feature_map, index, varname, "q"
+import tempfile
+feature_map = tempfile.NamedTemporaryFile(suffix=".txt")
+for index, varname in enumerate(input_vars):
+    print >> feature_map, index, varname, "q"
 
-#feature_map.flush()
+feature_map.flush()
 
-#import re
+import re
 
-#tmva_output_fname = re.sub("\\.pkl$",".xml", model_fname)
+tmva_output_fname = re.sub("\\.pkl$",".xml", model_fname)
 
-#model_dump = model.get_booster().get_dump(fmap = feature_map.name)
-#xgboost2tmva.convert_model(model_dump,input_variables = [(input_var,'F') for input_var in input_vars],output_xml = tmva_output_fname,pretty = True);
+model_dump = model.get_booster().get_dump(fmap = feature_map.name)
+xgboost2tmva.convert_model(model_dump,input_variables = [(input_var,'F') for input_var in input_vars],output_xml = tmva_output_fname,pretty = True);
 
-#print "Wrote", tmva_output_fname
+print "Wrote", tmva_output_fname
 #############################################################################################################################

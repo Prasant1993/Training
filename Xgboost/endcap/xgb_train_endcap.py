@@ -77,11 +77,11 @@ eval_set = [(X_train, y_train), (X_test, y_test)]
 
 ## fit the xgboost model to the training dataset
 #model.fit(X_train, y_train, sample_weight = w_train)
-model.fit(X_train, y_train, sample_weight = w_train, eval_metric="error", eval_set=eval_set, verbose=True)
+#model.fit(X_train, y_train, sample_weight = w_train, eval_metric="error", eval_set=eval_set, verbose=True)
 
 #model.fit(X_train, y_train, sample_weight = w_train, early_stopping_rounds=10, eval_metric="logloss", eval_set=eval_set, verbose=True)
 
-#model.fit(X_train, y_train, sample_weight = w_train, eval_metric=["auc", "logloss"], eval_set=eval_set, verbose=True)
+model.fit(X_train, y_train, sample_weight = w_train, eval_metric=["error", "logloss"], eval_set=eval_set, verbose=True)
 
 model_fname = time.strftime("Endcap_model-%Y-%d-%m-%H%M%S_nTree2000_error.pkl")
 pickle.dump(model, open(model_fname, "wb"))
@@ -113,16 +113,16 @@ x_axis = range(0, epochs)
 
 # plot log loss                                                                                                                              
                          
-#fig, ax = plt.subplots()
-#ax.plot(x_axis, results['validation_0']['logloss'], label='Train')
-#ax.plot(x_axis, results['validation_1']['logloss'], label='Test')
-#ax.legend()
-#plt.xlabel('n_estimators')
-#plt.ylabel('Log Loss')
-#plt.title('XGBoost : Log Loss')
-#plt.legend(loc = 'upper right', fontsize = 20)
-#plt.grid()
-#plt.savefig("Learning_curve_EE_Logloss_15032019_nTree2000.png")
+fig, ax = plt.subplots()
+ax.plot(x_axis, results['validation_0']['logloss'], label='Train')
+ax.plot(x_axis, results['validation_1']['logloss'], label='Test')
+ax.legend()
+plt.xlabel('n_estimators')
+plt.ylabel('Log Loss')
+plt.title('XGBoost : Log Loss')
+plt.legend(loc = 'upper right', fontsize = 20)
+plt.grid()
+plt.savefig("Learning_curve_EE_Logloss_15032019_nTree2000.png")
 
 # plot classification error
 
@@ -142,74 +142,71 @@ plt.savefig("Learning_curve_EE_classification_error_15032019_nTree2000.png")
 ############################################################################################################
 
 ## evaluating on the test data set
-#y_test_pred = model.predict_proba(X_test)[:,1]
+y_test_pred = model.predict_proba(X_test)[:,1]
 
-#fpr, tpr, thresholds = metrics.roc_curve(y_test,y_test_pred,sample_weight=w_test)
-#auc_val = metrics.auc(fpr, tpr, reorder = True)
+fpr, tpr, thresholds = metrics.roc_curve(y_test,y_test_pred,sample_weight=w_test)
+auc_val = metrics.auc(fpr, tpr, reorder = True)
 
 
-#plt.figure(figsize=(10,10))
+plt.figure(figsize=(10,10))
 
-#plt.plot(fpr, tpr, label = 'xgboost (auc=%.3f)' % auc_val)
+plt.plot(fpr, tpr, label = 'xgboost (auc=%.3f)' % auc_val)
 
-#plt.xlabel('false positive rate (relative background efficiency)', fontsize = 15)
-#plt.ylabel('true positive rate (relative signal efficiency)', fontsize = 15)
+plt.xlabel('false positive rate (relative background efficiency)', fontsize = 15)
+plt.ylabel('true positive rate (relative signal efficiency)', fontsize = 15)
 
-#plt.legend(loc = 'lower right', fontsize = 20)
+plt.legend(loc = 'lower right', fontsize = 20)
 
-#plt.grid()
+plt.grid()
 
-#plt.savefig("ROC_curve_Test_nTree2000_endcap_15032019_cl.png")
+plt.savefig("ROC_curve_Test_nTree2000_endcap_15032019_cl.png")
 
 ######################################################################################################################
 # **Re-check pt/eta weighting**
 
-#for train_test_label, weights, y, pt, scEta in (('train', w_train, y_train, pt_train, scEta_train), ('test', w_test, y_test, pt_test, scEta_test)):
-#    plt.figure(figsize = (13,6))
-#    plot_index = 1
-#    for values, binning in ((pt, np.linspace(0, 250, 50 + 1)), (np.abs(scEta), np.linspace(0, 2.5, 25 + 1))):
-#        plt.subplot(1,2, plot_index)
-#        plot_index += 1
+for train_test_label, weights, y, pt, scEta in (('train', w_train, y_train, pt_train, scEta_train), ('test', w_test, y_test, pt_test, scEta_test)):
+    plt.figure(figsize = (13,6))
+    plot_index = 1
+    for values, binning in ((pt, np.linspace(0, 250, 50 + 1)), (np.abs(scEta), np.linspace(0, 2.5, 25 + 1))):
+        plt.subplot(1,2, plot_index)
+        plot_index += 1
 
-#        for label, selection in (('prompt', lambda labels: labels == 1), ('fake', lambda labels: labels == 0)):
-#            indices = selection(y)
-#            plt.hist(values[indices], bins = binning, weights = weights[indices], label = label, histtype = 'step', alpha = 0.5,
-#                     linewidth = 4, normed = True)
-#        plt.grid()
-#        plt.legend(loc = 'lower right')
-#        if train_test_label == 'train':  
-#           plt.title(train_test_label)
-#           plt.savefig("pt_scEta_reweight_check_train_endcap_15032019.png")
-#        else:
-#             plt.title(train_test_label)
-#             plt.savefig("pt_scEta_reweight_check_test_endcap_15032019.png")    
+        for label, selection in (('prompt', lambda labels: labels == 1), ('fake', lambda labels: labels == 0)):
+            indices = selection(y)
+            plt.hist(values[indices], bins = binning, weights = weights[indices], label = label, histtype = 'step', alpha = 0.5,
+                     linewidth = 4, normed = True)
+        plt.grid()
+        plt.legend(loc = 'lower right')
+        if train_test_label == 'train':  
+           plt.title(train_test_label)
+           plt.savefig("pt_scEta_reweight_check_train_endcap_15032019.png")
+        else:
+            plt.title(train_test_label)
+            plt.savefig("pt_scEta_reweight_check_test_endcap_15032019.png")    
 
 #######################################################################################################################################3      
 #########################
-#def variable_importance(classifier, features):
-#    print "mylist", features[:]
-#    indices      = np.argsort(classifier.feature_importances_)[::-1]
-#    importances   = classifier.feature_importances_#
+def variable_importance(classifier, features):
+    print "mylist", features[:]
+    indices      = np.argsort(classifier.feature_importances_)[::-1]
+    importances   = classifier.feature_importances_#
 
-#    for f in range(len(features)):
-#        print("%d. feature %s %d (%f)" % (f + 1, features[indices[f]], indices[f], importances[indices[f]]))
-
-    # Plot the feature importances of the forest                                                                                              
-
-#    plt.figure()
-#    plt.title("Feature importances")
-#    plt.bar(range(len(features)), importances[indices],
-#       color="r",  align="center")
-#    plt.xticks(range(len(features)), indices)
-#    plt.xlim([-1, len(features)])
-#    plt.savefig('vriable_importance_15032019_nTree260_endcap.png')
-
-#variable_importance(model,input_vars)
+    for f in range(len(features)):
+        print("%d. feature %s %d (%f)" % (f + 1, features[indices[f]], indices[f], importances[indices[f]]))
 
 
+    plt.figure()
+    plt.title("Feature importances")
+    plt.bar(range(len(features)), importances[indices],
+       color="r",  align="center")
+    plt.xticks(range(len(features)), indices)
+    plt.xlim([-1, len(features)])
+    plt.savefig('vriable_importance_15032019_nTree260_endcap.png')
 
+variable_importance(model,input_vars)
 
-       
+##################################################################################################################################
+
 # convert xgboost to TMVA weights
 
 import tempfile

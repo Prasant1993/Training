@@ -31,27 +31,27 @@ def load_file(input_file, selection = None):
     :return: input_values, target_values, orig_weights, input_var_names
     """
 
-    Sig_values = []
+    Bkg_values = []
 
-    Sig_target_values = []
+    Bkg_target_values = []
 
     # names of variables used as BDT input
     input_var_names = []
 
     # original weights without pt/eta reweighting
     # we can use these also for evaluation
-    Sig_orig_weights = []
+    Bkg_orig_weights = []
 
 
     is_first_var = True
 
-    for varname in barrel_vars:
+    for varname in endcap_vars:
 
         this_values = []
 
         is_first_proc = True
 
-        for tree_name, label in [('promptPhotons', 1)]:
+        for tree_name, label in [('fakePhotons', 0)]:
 
             tree = input_file[tree_name]
 
@@ -59,7 +59,7 @@ def load_file(input_file, selection = None):
                 indices = selection(tree)
             else:
                 indices = np.ones(len(tree.array(varname)), dtype = 'bool')
-            
+
             # BDT input variable
             this_values.append(tree.array(varname)[indices])
 
@@ -68,25 +68,25 @@ def load_file(input_file, selection = None):
 
             # append target values and weights
             if is_first_var:
-                Sig_target_values.append(np.ones(len(this_values[-1])) * label)
+                Bkg_target_values.append(np.ones(len(this_values[-1])) * label)
 
                 this_weights =  tree.array('weight')[indices]
-                Sig_orig_weights.append(this_weights)
+                Bkg_orig_weights.append(this_weights)
 
             is_first_proc = False
 
         # end of loop over processes
 
         if this_values:
-            Sig_values.append(np.hstack(this_values))
+            Bkg_values.append(np.hstack(this_values))
 
         if is_first_var:
-            Sig_target_values = np.hstack(Sig_target_values)
-            Sig_orig_weights = np.hstack(Sig_orig_weights)
+            Bkg_target_values = np.hstack(Bkg_target_values)
+            Bkg_orig_weights = np.hstack(Bkg_orig_weights)
 
         is_first_var = False
 
 
-    Sig_values = np.vstack(Sig_values).T
-    return Sig_values, Sig_target_values, Sig_orig_weights, input_var_names
+    Bkg_values = np.vstack(Bkg_values).T
+    return Bkg_values, Bkg_target_values, Bkg_orig_weights, input_var_names
         

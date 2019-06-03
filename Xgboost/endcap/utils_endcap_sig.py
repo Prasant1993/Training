@@ -45,7 +45,7 @@ def load_file(input_file, selection = None):
 
     is_first_var = True
 
-    for varname in barrel_vars:
+    for varname in endcap_vars:
 
         this_values = []
 
