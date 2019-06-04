@@ -6,7 +6,7 @@ from sklearn import metrics
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-import utils_endcap
+import utils_barrel
 import time,pickle
 from tqdm import tqdm
 from scipy.stats import randint
@@ -23,12 +23,13 @@ print fin['promptPhotons'].keys()
 print fin['fakePhotons'].keys()
 
 
-## for endcap
 
-geometry_selection = lambda tree: np.logical_and(abs(tree.array('scEta')) > 1.566, abs(tree.array('scEta')) < 2.5)
+## for barrel
+geometry_selection = lambda tree: np.abs(tree.array('scEta')) < 1.5
 
 
-input_values, target_values, orig_weights, train_weights, pt, scEta, input_vars = utils_endcap.load_file(fin, geometry_selection)
+
+input_values, target_values, orig_weights, train_weights, pt, scEta, input_vars = utils_barrel.load_file(fin, geometry_selection)
 
 print "input_values", input_values
 print "target_values", target_values
@@ -80,6 +81,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.model_selection import RandomizedSearchCV,GridSearchCV
 import pandas as pd
 from skopt.space import Real, Categorical, Integer
+
 
 
 param_dist = {

@@ -3,10 +3,10 @@ import numpy as np
 import uproot
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn import metrics
-from sklearn.ensemble import GradientBoostingClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-import utils_endcap
+import utils_barrel
 import time,pickle
 from tqdm import tqdm
 from scipy.stats import randint
@@ -23,12 +23,13 @@ print fin['promptPhotons'].keys()
 print fin['fakePhotons'].keys()
 
 
-## for endcap
 
-geometry_selection = lambda tree: np.logical_and(abs(tree.array('scEta')) > 1.566, abs(tree.array('scEta')) < 2.5)
+## for barrel
+geometry_selection = lambda tree: np.abs(tree.array('scEta')) < 1.5
 
 
-input_values, target_values, orig_weights, train_weights, pt, scEta, input_vars = utils_endcap.load_file(fin, geometry_selection)
+
+input_values, target_values, orig_weights, train_weights, pt, scEta, input_vars = utils_barrel.load_file(fin, geometry_selection)
 
 print "input_values", input_values
 print "target_values", target_values
@@ -82,6 +83,7 @@ import pandas as pd
 from skopt.space import Real, Categorical, Integer
 
 
+## Parameters Needs to be changed 
 param_dist = {
               'min_samples_split ': randint(2,20),
               'min_samples_leaf ': randint(1,10),
@@ -92,7 +94,7 @@ param_dist = {
 
 
 
-estimator= GradientBoostingClassifier()
+estimator= XGBClassifier()
 
 cv = StratifiedKFold(n_splits=5, shuffle = True)
 

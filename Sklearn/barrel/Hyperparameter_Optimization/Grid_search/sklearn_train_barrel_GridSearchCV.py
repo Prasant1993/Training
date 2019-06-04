@@ -6,7 +6,7 @@ from sklearn import metrics
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-import utils_endcap
+import utils_barrel
 import time,pickle
 from tqdm import tqdm
 from scipy import stats
@@ -23,12 +23,11 @@ print fin['promptPhotons'].keys()
 print fin['fakePhotons'].keys()
 
 
-## for endcap
+## for barrel
+geometry_selection = lambda tree: np.abs(tree.array('scEta')) < 1.5
 
-geometry_selection = lambda tree: np.logical_and(abs(tree.array('scEta')) > 1.566, abs(tree.array('scEta')) < 2.5)
 
-
-input_values, target_values, orig_weights, train_weights, pt, scEta, input_vars = utils_endcap.load_file(fin, geometry_selection)
+input_values, target_values, orig_weights, train_weights, pt, scEta, input_vars = utils_barrel.load_file(fin, geometry_selection)
 
 print "input_values", input_values
 print "target_values", target_values
@@ -69,15 +68,17 @@ from sklearn.model_selection import RandomizedSearchCV,GridSearchCV
 import pandas as pd
 from skopt.space import Real, Categorical, Integer
 
-# A parameter grid for XGBoost                                                                                                                
+# A parameter grid for sklearn gradient boosting classifier
+
 
 params = {
-           'min_samples_split ': [2,4,6,8,12,16,20],
-           'min_samples_leaf ': [1, 3, 5, 7, 10],
-           'subsample': [0.6, 0.8, 1.0],
-           'max_features': [4, 6, 8, 12],
-           'max_depth': [3, 4, 5, 6, 7, 8, 9, 10]
-              }
+          'min_samples_split ': [2,4,6,8,12,16,20],
+          'min_samples_leaf ': [1, 3, 5, 7, 10],
+          'subsample': [0.6, 0.8, 1.0],
+          'max_features': [4, 6, 8, 12],
+          'max_depth': [3, 4, 5, 6, 7, 8, 9, 10]
+            }
+
 
 
 estimator = GradientBoostingClassifier()
